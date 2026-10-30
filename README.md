@@ -20,6 +20,7 @@ assets, under the licences in the model's folder.
 
 | Model | Task | Scale | Folder | Release |
 |---|---|---|---|---|
+| [RealESRGAN_x4plus](#realesrgan_x4plus) | General photo upscaling | 4× | `models/realesrgan-x4plus/` | `realesrgan-x4plus-v1` |
 | [DarkIR-m](#darkir-m) | Low-light restoration | 1× | `models/darkir/` | `darkir-v1` |
 
 Every model has its own folder under `models/` with `convert.py`, `requirements.txt` and its licences.
@@ -38,6 +39,34 @@ Each script checks the weights' checksum, builds the network from the authors' c
 and checks that ONNX Runtime gives the same output as PyTorch (largest difference printed).
 
 ## Conversions
+
+### RealESRGAN_x4plus
+- **What it does:** upscales 4×, trained with Real-ESRGAN's degradation pipeline. RRDBNet network.
+  Real-ESRGAN, Xintao Wang et al., Tencent ARC, ICCV-W 2021.
+- **Sources:**
+  - Code: `RRDBNet` from <https://github.com/XPixelGroup/BasicSR>, commit
+    `8d56e3a045f9fb3e1d8872f92ee4a4f07f886b0a`, `basicsr/archs/rrdbnet_arch.py`, with the settings of
+    Real-ESRGAN's `inference_realesrgan.py`. The few BasicSR helpers that file imports are copied into
+    `convert.py` (so BasicSR and its dependencies aren't needed), except the weight initialiser, which
+    is replaced by a no-op since the real weights are loaded right after.
+  - Weights: `RealESRGAN_x4plus.pth` from
+    <https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth>, key
+    `params_ema`. SHA-256 `4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1` (GitHub
+    publishes none; recorded on 2026-10-29).
+- **Licences:** Real-ESRGAN is BSD-3-Clause (`models/realesrgan-x4plus/LICENSE-Real-ESRGAN`); BasicSR is
+  Apache-2.0 (`models/realesrgan-x4plus/LICENSE-BasicSR`).
+- **ONNX files:** input `image` `[1, 3, H, W]`, float32 RGB in 0–1, any height and width; output
+  `upscaled` `[1, 3, 4H, 4W]`. Opset 17.
+  - `RealESRGAN_x4plus_fp32.onnx`: full precision; matches PyTorch to ~2e-6.
+  - `RealESRGAN_x4plus_fp16.onnx`: half precision, float32 in and out; within ~1e-3 of fp32
+    (PSNR ~72 dB).
+- **Reproduce:** `python models/realesrgan-x4plus/convert.py`, with `models/realesrgan-x4plus/requirements.txt`.
+- **Release:** tag `realesrgan-x4plus-v1`, both files below.
+
+| File | SHA-256 | Size |
+|---|---|---|
+| `RealESRGAN_x4plus_fp32.onnx` | `a2eabae4b8b644299ce4c1f693b71663a6c8c9be73b53b797dea1b3a57a9be99` | 67,051,639 bytes |
+| `RealESRGAN_x4plus_fp16.onnx` | `78844e693b50efd5de5bdd50d8e08a20a6fcd0fadab430e7002ebbe958d83bf3` | 33,748,802 bytes |
 
 ### DarkIR-m
 - **What it does:** brightens dark and night photos and removes their noise and blur in one pass,
