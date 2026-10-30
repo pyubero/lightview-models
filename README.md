@@ -124,3 +124,27 @@ and checks that ONNX Runtime gives the same output as PyTorch (largest differenc
 | File | SHA-256 | Size |
 |---|---|---|
 | `DarkIR_384.onnx` | `a6d5104f12c7105468ace2f629fa8131f210e373fca609558e408724584204cc` | 13,736,405 bytes |
+
+## Comparisons
+
+### On a test image
+`python compare.py` runs `assets/test_image.jpeg` (390 × 293) through every model in `dist/`, on the
+CPU with ONNX Runtime, and tiles the results with labels (model, precision, scale, CPU time):
+- [`assets/comparison.png`](assets/comparison.png): the whole image, every tile 1560 × 1172.
+- [`assets/comparison-crop.png`](assets/comparison-crop.png): the face and thumbs-up, enlarged.
+
+The input and 1× models (DarkIR) are enlarged with plain bicubic so the tiles line up. DarkIR is a
+low-light model, so on a well-lit photo like this one it overexposes: that's expected, not a fault.
+
+The images also show BSRGAN, which isn't distributed here: it's kept for comparison only, and
+running `compare.py` again leaves it out.
+
+### 4× upscalers (2026-10-29, in lightview, fp32)
+A 1024 px crop of a phone photo, shrunk to 256 px and upscaled back 4×; times include loading the
+model, on a GTX 1050 (4 GB) and an i7-8750H with turbo off. BSRGAN is shown for comparison only.
+
+| Model | 256 px, GPU | PAL frame 768 × 576, GPU | 256 px, CPU | PSNR vs original | Looks |
+|---|---|---|---|---|---|
+| BSRGAN | 2.7 s | 21.9 s | 17.4 s | 25.5 dB | sharp, plasticky, invents creases |
+| Real-ESRGAN x4plus | 2.5 s | 22.1 s | 16.6 s | 25.4 dB | smooth, painterly, loses texture |
+| realesr-general-x4v3 | 0.7 s | 2.4 s | 1.4 s | 25.3 dB | softest, least detail; ~10× faster |
