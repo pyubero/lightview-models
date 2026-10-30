@@ -12,9 +12,14 @@ here, in the open, keeps the chain from the paper's authors to lightview verifia
 ## What this repo contains
 
 This is not a fork of any of these projects. It holds the conversion scripts and each model's licences,
-and nothing else from upstream: `convert.py` fetches the authors' code and weights at pinned revisions
-into the model's `work/`, which git ignores. The converted files aren't in git either; they're release
-assets, under the licences in the model's folder.
+and the only upstream code is a few BasicSR helpers copied into `models/realesrgan-x4plus/convert.py`:
+each `convert.py` fetches the authors' code and weights at pinned revisions into the model's `work/`,
+which git ignores. The converted files aren't in git either; they're release assets, under the licences
+in the model's folder.
+
+The scripts and documentation here are MIT-licensed ([`LICENSE`](LICENSE)). That doesn't cover the
+upstream licence files, the BasicSR helpers (Apache-2.0), the converted ONNX files, or the images in
+`assets/`.
 
 ## Models
 
